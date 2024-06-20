@@ -78,7 +78,16 @@ def print_dict_differences(dict1, dict2):
 #                 pass
 
 
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+if getattr(sys, "frozen", False):
+    app = Flask(__name__, template_folder='../../../templates', static_folder='../../../static')
+else:
+    app = Flask(__name__, template_folder='../templates', static_folder='../static')
+    
+print(f"Template folder: {app.template_folder}")
+print(f"Static folder: {app.static_folder}")
+print(f"Template folder full path: {os.path.abspath(app.template_folder)}")
+print(f"Static folder FULL path: {os.path.abspath(app.static_folder)}")
+
 app.jinja_env.globals.update(get_audio_devices=get_audio_devices)
 if getattr(sys, "frozen", False):
     Minify(app=app, html=True, js=True, cssless=True)
