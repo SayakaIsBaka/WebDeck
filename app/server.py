@@ -82,11 +82,6 @@ if getattr(sys, "frozen", False):
     app = Flask(__name__, template_folder='../../../templates', static_folder='../../../static')
 else:
     app = Flask(__name__, template_folder='../templates', static_folder='../static')
-    
-print(f"Template folder: {app.template_folder}")
-print(f"Static folder: {app.static_folder}")
-print(f"Template folder full path: {os.path.abspath(app.template_folder)}")
-print(f"Static folder FULL path: {os.path.abspath(app.static_folder)}")
 
 app.jinja_env.globals.update(get_audio_devices=get_audio_devices)
 if getattr(sys, "frozen", False):
@@ -242,17 +237,15 @@ def saveconfig():
         not config["settings"]["soundboard"]["enabled"]
         == new_config["settings"]["soundboard"]["enabled"]
     ):
-        if new_config["settings"]["soundboard"]["enabled"] == "true":
-            soundboard_start = True
-        else:
-            soundboard_stop = True
+        soundboard_start = new_config["settings"]["soundboard"]["enabled"]
+        soundboard_stop = not soundboard_start
 
     config = check_config_update(config)
     new_config = check_config_update(new_config)
 
     if (
-        config["settings"]["windows-startup"].lower().strip() == "false"
-        and new_config["settings"]["windows-startup"].lower().strip() == "true"
+        config["settings"]["windows-startup"] == False
+        and new_config["settings"]["windows-startup"] == True
     ):
         if getattr(sys, "frozen", False):
             dir = (
@@ -270,8 +263,8 @@ def saveconfig():
             shortcut.IconLocation = icon
             shortcut.save()
     elif (
-        config["settings"]["windows-startup"].lower().strip() == "true"
-        and new_config["settings"]["windows-startup"].lower().strip() == "false"
+        config["settings"]["windows-startup"] == True
+        and new_config["settings"]["windows-startup"] == False
     ):
         if getattr(sys, "frozen", False):
             file_path = (
@@ -511,7 +504,7 @@ def send_data_route():
 
 
 if (
-    config["settings"]["automatic-firewall-bypass"] == "true"
+    config["settings"]["automatic-firewall-bypass"] == True
     and check_firewall_permission() == False
 ):
     fix_firewall_permission()
@@ -521,6 +514,6 @@ print('local_ip: ', local_ip)
 app.run(
     host=local_ip,
     port=config["url"]["port"],
-    debug=config["settings"]["flask-debug"] == "true",
-    use_reloader=config["settings"]["flask-debug"] == "false",
+    debug=config["settings"]["flask-debug"] == True,
+    use_reloader=config["settings"]["flask-debug"] == False,
 )
